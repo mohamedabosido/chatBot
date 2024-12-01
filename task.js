@@ -26,6 +26,25 @@ client.on("ready", () => {
   console.log("Client is ready!");
 });
 
+// Define a detailed FAQ for common queries
+const FAQ = [
+  {
+    question: "How to become a President University student?",
+    answer:
+      "Hi there! For admission, you can fill out the online application form at our website: https://www.president.ac.id. Let me know if you'd like further guidance!",
+  },
+  {
+    question: "What programs does President University offer?",
+    answer:
+      "President University offers a wide range of programs in fields like Engineering, IT, Business, and more. You can explore the full list here: https://www.president.ac.id/programs.",
+  },
+  {
+    question: "Can I apply for scholarships?",
+    answer:
+      "Yes, President University provides various scholarships. You can learn more and check your eligibility at https://www.president.ac.id/scholarships.",
+  },
+];
+
 // Set up the AI chat history and model
 const chatHistory = [
   {
@@ -40,7 +59,10 @@ const chatHistory = [
     role: "model",
     parts: [
       {
-        text: "You are a customer service agent for President University. Answer all questions with accurate information about the university's services, programs, and procedures. If you are unsure, ask the user to refer to the university website or contact customer service directly.",
+        text: `You are a customer service agent for President University. Answer all questions accurately and politely, based on the information provided below. Always offer links to official resources for more details. If unsure, ask the user to refer to the university website or contact customer service directly.
+
+## FAQ:
+${FAQ.map((item, index) => `${index + 1}. "${item.question}" Answer: "${item.answer}"`).join("\n")}`,
       },
     ],
   },
@@ -62,13 +84,20 @@ client.on("message", async (msg) => {
     return;
   }
 
-  // Send the received message to the AI
-  const result = await chat.sendMessage(msg.body);
-  const response = await result.response;
-  const aiResponse = await response.text();
+  try {
+    // Send the received message to the AI
+    const result = await chat.sendMessage(msg.body);
+    const response = await result.response;
+    const aiResponse = await response.text();
 
-  // Reply with the AI response
-  msg.reply(aiResponse);
+    // Reply with the AI response
+    msg.reply(aiResponse);
+  } catch (error) {
+    console.error("Error responding to the message:", error);
+    msg.reply(
+      "I'm sorry, there was an issue processing your request. Please try again later or visit https://www.president.ac.id for assistance."
+    );
+  }
 });
 
 // Initialize the WhatsApp client
